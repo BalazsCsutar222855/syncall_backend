@@ -25,4 +25,6 @@ urlpatterns = [
     path('page/delete/<str:page_id>/', views.deletePage, name='delete-Page'),
     path('page/update/<str:page_id>/', views.updatePage, name='update-Page'),
 
+    path('last-activities/', views.last_activities_view, name='last-activities'),
+
 ]

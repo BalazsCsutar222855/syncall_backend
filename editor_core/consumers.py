@@ -1,24 +1,40 @@
+from channels.generic.websocket import AsyncWebsocketConsumer
 import json
 
-from channels.generic.websocket import AsyncWebsocketConsumer # The class we're using
-from asgiref.sync import sync_to_async # Implement later
+class TrackConsumer(AsyncWebsocketConsumer):
 
-class ChatConsumer(AsyncWebsocketConsumer):
-  async def connect(self):
-    self.room_name = self.scope['url_route']['kwargs']['room_name']
-    self.room_group_name = 'chat_%s' % self.room_name
+    async def connect(self):
+        # Extract the track ID from the URL or wherever it's provided
+        self.track_id = self.scope['url_route']['kwargs']['track_id']
 
-    # Join room group
-    await self.channel_layer.group_add(
-      self.room_group_name,
-      self.channel_name
-    )
+        await self.accept()
+        await self.join_track_group()
 
-    await self.accept()
+    async def disconnect(self, close_code):
+        await self.leave_track_group()
 
-  async def disconnect(self, close_code):
-    # Leave room group
-    await self.channel_layer.group_discard(
-      self.room_group_name,
-      self.channel_name
-  )
+    async def receive(self, text_data):
+        message = text_data
+        await self.broadcast_message(message)
+
+    async def broadcast_message(self, message):
+        await self.channel_layer.group_send(
+            self.track_group_name(),
+            {
+                "type": "send_message",
+                "text": message,
+            },
+        )
+
+    async def join_track_group(self):
+        await self.channel_layer.group_add(self.track_group_name(), self.channel_name)
+
+    async def leave_track_group(self):
+        await self.channel_layer.group_discard(self.track_group_name(), self.channel_name)
+
+    async def send_message(self, event):
+        text = event['text']
+        await self.send(text)
+
+    def track_group_name(self):
+        return f"track_{self.track_id}"

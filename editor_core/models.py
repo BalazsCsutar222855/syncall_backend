@@ -1,6 +1,7 @@
 import uuid
 from django.db import models
-from django.contrib.auth.models import User 
+from django.contrib.auth.models import User
+
 
 class Shelf(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -39,6 +40,8 @@ class Page(models.Model):
 
     title = models.CharField(max_length=100, default="YourDefaultName")
     description = models.TextField(default="Custom Calcreatedar")
+    favorite = models.BooleanField(default=False)
 
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
+    

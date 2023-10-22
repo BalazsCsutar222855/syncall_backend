@@ -1,7 +1,7 @@
-from django.urls import path
+from django.urls import re_path
 
-from . import consumers
+from .consumers import TrackConsumer
 
 websocket_urlpatterns = [
-  path('editor/<str:room_name>/', consumers.ChatConsumer.as_asgi())
+    re_path(r"ws/(?P<track_id>[-\w]+)/$", TrackConsumer.as_asgi()),
 ]

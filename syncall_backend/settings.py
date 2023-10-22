@@ -25,13 +25,20 @@ SECRET_KEY = 'django-insecure-@=+_gm-t*g^_)e0ko=_y!vy@$1+_x0#pd^b07vy91f5(40&78o
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.1.95', 'syncall.balage.top']
+ALLOWED_HOSTS = ['192.168.1.95', 'syncall.balage.top', '172.24.0.1', '0.0.0.0', '192.168.1.223']
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'channels',
+    'channels_redis',
+    'calendar_core',
+    'syncall_backend',
+    'editor_core',
+    'corsheaders',
+    'attrs',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -41,9 +48,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'rest_framework_json_api',
-    'calendar_core',
-    'editor_core',
-    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -77,20 +81,15 @@ TEMPLATES = [
 ]
 
 
-# settings.py
-
 CORS_ORIGIN_ALLOW_ALL = True
 
-
-WSGI_APPLICATION = 'syncall_backend.wsgi.application'
-
-# settings.py
 ASGI_APPLICATION = "syncall_backend.asgi.application"
+
 CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            "hosts": [('127.0.0.1', 6379)],
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("syncall_backend-redis-1", 6379)],
         },
     },
 }

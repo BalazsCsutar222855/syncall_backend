@@ -6,9 +6,11 @@ from rest_framework.authtoken.models import Token
 
 from rest_framework import status
 from .models import Shelf, Book, Chapter, Page
-from .serializers import ShelfSerializer, BookSerializer, ChapterSerializer, PageSerializer
+from .serializers import ShelfSerializer, BookSerializer, ChapterSerializer, PageSerializer, LogEntrySerializer
 from django.contrib.auth.models import User 
 from django.shortcuts import get_object_or_404
+from django.contrib.admin.models import LogEntry
+from rest_framework.renderers import JSONRenderer
 
 
 #SHelves apis ============================================================
@@ -175,7 +177,6 @@ def getPages(request):
 @api_view(['GET'])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
-
 def getPage(request, page_id):
     page = get_object_or_404(Page, pk=page_id)
     serializer = PageSerializer(page)
@@ -187,8 +188,9 @@ def getPage(request, page_id):
 def addPage(request):
     
     page = request.data
-    page['user_key'] = request.user.id
     serializer = PageSerializer(data=page)
+
+    log_entry = LogEntry.objects.create(user=request.user )
     if serializer.is_valid():
         serializer.save()
     return Response(serializer.data)
@@ -221,3 +223,12 @@ def updatePage(request, page_id):
         serializer.save()
         return Response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+#Page apis ============================================================
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def last_activities_view(request):
+    last_activities = LogEntry.objects.filter(user=request.user).order_by('-action_time')[:10]
+    serializer = LogEntrySerializer(last_activities, many=True)
+    return Response(serializer.data)

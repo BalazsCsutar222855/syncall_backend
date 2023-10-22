@@ -1,4 +1,6 @@
 version: '3'
+networks:
+  syncall_backend_network:
 services:
   db:
     image: postgres:latest
@@ -6,7 +8,8 @@ services:
       POSTGRES_DB: syncal_database  # Replace with your database name
       POSTGRES_USER: admin    # Replace with your database user
       POSTGRES_PASSWORD: s9HMY8]dgF0!Wpxa  # Replace with your database password
-
+    networks:
+      - syncall_backend_network
   web:
     build:
       context: .  # Use the current directory as the build context
@@ -18,8 +21,12 @@ services:
       - "8090:8090"  # Use the same port for the host and container
     depends_on:
       - db
+    networks:
+      - syncall_backend_network
 
   redis:
     image: redis:latest
     ports:
       - "6379:6379"
+    networks:
+      - syncall_backend_network
